@@ -25,8 +25,7 @@ const packOfCard = [...initialArrayCards, ...initialArrayCards];
 const App = () => {
   const [arrayNums, setArrayNums] = useState([]);
   const [cardOpen, setCardOpen] = useState([]);
-  const [CardMatch, setCardMatch] = useState([]);
-  const [moves, setMoves] = useState(0);
+  const [cardMatch, setCardMatch] = useState([]);
 
   const randomShuffle = (array) => {
     let currentIndex = array.length;
@@ -48,11 +47,26 @@ const App = () => {
 
   useEffect(() => {
     setArrayNums(randomShuffle(packOfCard));
-  });
+  }, []);
 
   const clickCard = (index) => {
-    // setCardOpen((opened) => [...opened, index]);
+    setCardOpen((opened) => [...opened, index]);
   };
+
+  useEffect(() => {
+    if (cardOpen < 2) {
+      return;
+    }
+    const firstMatched = arrayNums[cardOpen[0]];
+    const secondMatched = arrayNums[cardOpen[1]];
+
+    if (secondMatched && firstMatched.id === secondMatched.id) {
+      setCardMatch([...cardMatch, firstMatched.id]);
+    }
+    if (cardOpen.length === 2) {
+      setTimeout(() => setCardOpen([]), 2000);
+    }
+  }, [cardOpen]);
 
   return (
     <div className='App'>
@@ -64,7 +78,7 @@ const App = () => {
           if (cardOpen.includes(idx)) {
             isFlipped = true;
           }
-          if (CardMatch.includes(num.id)) {
+          if (cardMatch.includes(num.id)) {
             isFlipped = true;
           }
 
@@ -72,11 +86,14 @@ const App = () => {
             <div
               key={idx}
               className={`card ${isFlipped ? 'fliped' : ''}`}
-              onClick={clickCard(idx)}
+              onClick={() => clickCard(idx)}
             >
               <div className='inner'>
-                <div className='cardFront'>{num.id}</div>
-                <div className='cardBack'>?</div>
+                {isFlipped ? (
+                  <div className='cardFront'>{num.id}</div>
+                ) : (
+                  <div className='cardBack'>?</div>
+                )}
               </div>
             </div>
           );
