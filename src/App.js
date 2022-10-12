@@ -51,7 +51,7 @@ const App = () => {
   });
 
   const clickCard = (index) => {
-    setCardOpen((opened) => [...opened, index]);
+    // setCardOpen((opened) => [...opened, index]);
   };
 
   return (
