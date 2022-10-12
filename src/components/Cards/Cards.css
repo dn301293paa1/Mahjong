@@ -1,0 +1,15 @@
+.cards {
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(8, 1fr);
+  gap: 10px;
+}
+
+.card.flipped {
+  border-color: #ed5517;
+  filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.card.matched {
+  border: 1px solid #0a0a0c;
+  filter: none;
+}

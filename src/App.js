@@ -1,31 +1,42 @@
 import { useState, useEffect } from 'react';
+import Cards from './components/Cards/Cards.jsx';
 import './App.css';
 
-const initialArrayCards = [
-  { id: 1, num: 1 },
-  { id: 2, num: 2 },
-  { id: 3, num: 3 },
-  { id: 4, num: 4 },
-  { id: 5, num: 5 },
-  { id: 6, num: 6 },
-  { id: 7, num: 7 },
-  { id: 8, num: 8 },
-  { id: 10, num: 10 },
-  { id: 11, num: 11 },
-  { id: 12, num: 12 },
-  { id: 13, num: 13 },
-  { id: 14, num: 14 },
-  { id: 15, num: 15 },
-  { id: 16, num: 16 },
-  { id: 17, num: 17 },
-];
+const randomNum = (length, maxNum) => {
+  let arr = [];
+  while (arr.length < length) {
+    let r = Math.floor(Math.random() * maxNum) + 1;
+    if (arr.indexOf(r) === -1) arr.push(r);
+  }
+  return arr;
+};
 
-const packOfCard = [...initialArrayCards, ...initialArrayCards];
+const generateArray = randomNum(16, 60);
+
+const initialArrayCards = generateArray.map((elem, idx) => {
+  return { num: elem };
+});
+
+const coupleInitialArrayCards = [...initialArrayCards, ...initialArrayCards];
+
+const generateId = randomNum(
+  coupleInitialArrayCards.length,
+  coupleInitialArrayCards.length * 5
+);
+
+const createPacksOfCards = (arr, generateId) => {
+  return arr.map((el, idx) => {
+    return { id: generateId[idx], num: el.num };
+  });
+};
+
+const packOfCard = createPacksOfCards(coupleInitialArrayCards, generateId);
 
 const App = () => {
   const [arrayNums, setArrayNums] = useState([]);
   const [cardOpen, setCardOpen] = useState([]);
   const [cardMatch, setCardMatch] = useState([]);
+  const [startFlipped, setStartFlipped] = useState('flipped');
 
   const randomShuffle = (array) => {
     let currentIndex = array.length;
@@ -34,11 +45,8 @@ const App = () => {
 
     while (currentIndex !== 0) {
       randomIndex = Math.floor(Math.random() * currentIndex);
-
       currentIndex -= 1;
-
       temporaryValue = array[currentIndex];
-
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
     }
@@ -47,6 +55,8 @@ const App = () => {
 
   useEffect(() => {
     setArrayNums(randomShuffle(packOfCard));
+
+    setTimeout(() => setStartFlipped(''), 5000);
   }, []);
 
   const clickCard = (index) => {
@@ -57,48 +67,31 @@ const App = () => {
     if (cardOpen < 2) {
       return;
     }
+
     const firstMatched = arrayNums[cardOpen[0]];
     const secondMatched = arrayNums[cardOpen[1]];
-
-    if (secondMatched && firstMatched.id === secondMatched.id) {
-      setCardMatch([...cardMatch, firstMatched.id]);
+    if (
+      secondMatched &&
+      firstMatched.num === secondMatched.num &&
+      firstMatched.id !== secondMatched.id
+    ) {
+      setCardMatch([...new Set([...cardMatch, firstMatched.num])]);
     }
     if (cardOpen.length === 2) {
-      setTimeout(() => setCardOpen([]), 2000);
+      setTimeout(() => setCardOpen([]), 1500);
     }
   }, [cardOpen]);
 
   return (
     <div className='App'>
-      <h1> Mahjong</h1>
-      <div className='cards'>
-        {arrayNums.map((num, idx) => {
-          let isFlipped = false;
-
-          if (cardOpen.includes(idx)) {
-            isFlipped = true;
-          }
-          if (cardMatch.includes(num.id)) {
-            isFlipped = true;
-          }
-
-          return (
-            <div
-              key={idx}
-              className={`card ${isFlipped ? 'fliped' : ''}`}
-              onClick={() => clickCard(idx)}
-            >
-              <div className='inner'>
-                {isFlipped ? (
-                  <div className='cardFront'>{num.id}</div>
-                ) : (
-                  <div className='cardBack'>?</div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <h1>Mahjong</h1>
+      <Cards
+        arrayNums={arrayNums}
+        cardOpen={cardOpen}
+        cardMatch={cardMatch}
+        startFlipped={startFlipped}
+        clickCard={clickCard}
+      />
     </div>
   );
 };
